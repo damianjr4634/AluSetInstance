@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "qMAWYcxBKBSwZTzuV3aQi5CeXdc2ViAhO1LzvswHvI29KVXsME18tdj8dN/+nscbQK3dTVCQkOdAga0oNPK3lw==",
+  "success": true,
+  "projectFilePath": "/home/damian/git/AluSetInstance/AluSetInstance.csproj",
+  "expectedPackageFiles": [
+    "/home/damian/.nuget/packages/microsoft.netcore.app.ref/6.0.11/microsoft.netcore.app.ref.6.0.11.nupkg.sha512",
+    "/home/damian/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.11/microsoft.aspnetcore.app.ref.6.0.11.nupkg.sha512",
+    "/home/damian/.nuget/packages/microsoft.netcore.app.host.linux-x64/6.0.11/microsoft.netcore.app.host.linux-x64.6.0.11.nupkg.sha512"
+  ],
+  "logs": []
+}
