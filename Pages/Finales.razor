@@ -1,18 +1,102 @@
 ﻿@page "/finales"
+@inherits _BasePage;
+@using Data;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Identity;
+@using Microsoft.EntityFrameworkCore;
 
-<PageTitle>Counter</PageTitle>
 
-<h1>Counter</h1>
+<PageTitle>Inscripcion de Finales</PageTitle>
 
-<p role="status">Current count: @currentCount</p>
+<h1>Inscripcion de Finales</h1>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<div class="row"> 
+    <div class="col"> 
+        <RadzenDataGrid  Data="@_data" TItem="InscripcionesFinales" AllowColumnResize="true"
+                        Width="600px">
+            <Columns>  
+                <RadzenDataGridColumn TItem="InscripcionesFinales" Property="Mesa" TextAlign="TextAlign.Start">
+                    
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn  TItem="InscripcionesFinales" Property="Llamado" TextAlign="TextAlign.Start">
+                    
+                    
+                </RadzenDataGridColumn>                                  
+                <RadzenDataGridColumn  TItem="InscripcionesFinales" Property="AlumnoId"  TextAlign="TextAlign.Start">
+                    
+                </RadzenDataGridColumn>      
+                <RadzenDataGridColumn  TItem="InscripcionesFinales" Property="CarreraId"  TextAlign="TextAlign.Start">
+                    
+                </RadzenDataGridColumn>       
+                               
+            </Columns>
+        </RadzenDataGrid>
+    </div>
+</div>
 
 @code {
-    private int currentCount = 0;
+    private List<InscripcionesFinales> _data = new();
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)        
+        {
+            
+            if (firstRender)
+            {    
+                try
+                {
+                    
+                    await LoadInfo();
+                }
+                catch (Exception err)
+                {
+                    if (err.InnerException != null && err.InnerException.Message != "")
+                    {
+                        toastService.ShowError(err.InnerException.Message);
+                    }
+                    else
+                    {
+                        toastService.ShowError(err.Message);
+                    }
+                }        
+            }
+        }
 
-    private void IncrementCount()
-    {
-        currentCount++;
-    }
+        public async Task<ApplicationDbContext> DbContextCreate()
+        {
+            var dbContext = new ApplicationDbContext();
+            dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+            await dbContext.Database.OpenConnectionAsync();
+            return dbContext;
+        }
+
+        private async Task LoadInfo()
+        {
+            string query = "";
+            try
+            {
+                using (var dbContext = await DbContextCreate())
+                {    
+                    _data = await dbContext.QueryAsync<InscripcionesFinales>(@"select ID, MESA, LLAMADO, ALUMNO_ID, ALUMNO_NOMBRE, CUATRIMESTRE_TURNO_COMISION, CARRERA_ID, CARRERA_NOMBRE, MATERIA_ID,
+                                                                                    MATERIA_NOMBRE, FECHA_EXAMEN, FECHA_EMISION, PERMISO_ID, ADM_OK, SECDOC_OK, PLATAFORMA_OK
+                                                                                from INSCRIPCION_FINALES_WEB"
+                                                                            );              
+                                    
+                    
+                } 
+                
+                StateHasChanged();
+            }
+            catch (Exception err)
+            {
+                if (err.InnerException != null && err.InnerException.Message != "")
+                {
+                    toastService.ShowError(err.InnerException.Message);
+                }
+                else
+                {
+                    toastService.ShowError(err.Message);
+                }
+            }
+        }
 }
