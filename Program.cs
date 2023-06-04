@@ -1,10 +1,14 @@
+
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Configuration;
 using AluSetInstance.Data;
 using Radzen;
 using Blazored.Toast;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ApplicationDbContext>(ServiceLifetime.Transient);    
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -15,6 +19,7 @@ builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<ContextMenuService>();
+builder.Services.AddBlazoredToast();
 
 var app = builder.Build();
 
@@ -24,6 +29,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
 }
 
+ApplicationDbContext.LoadConfig(app.Configuration);
 
 app.UseStaticFiles();
 

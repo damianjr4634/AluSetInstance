@@ -1,9 +1,19 @@
 ﻿@inherits LayoutComponentBase
+@using Blazored.Toast.Services
 
 <RadzenDialog/>
 <RadzenNotification/>
 <RadzenContextMenu/>
 <RadzenTooltip/>
+
+<BlazoredToasts Position="ToastPosition.BottomRight"
+                Timeout="5"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast-override"
+                SuccessIcon="fas fa-thumbs-up"
+                ErrorIcon="fas fa-bug"
+                InfoIcon="fas fa-info-circle"
+                WarningIcon="fas fa-exclamation-triangle" />
 
 <PageTitle>AluSetInstance</PageTitle>
 

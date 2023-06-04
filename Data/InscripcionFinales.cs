@@ -22,7 +22,12 @@ namespace AluSetInstance.Data
         [Required]
         [Column("ALUMNO_ID")] 
         public int AlumnoId { get; set; } = default!;
-        
+
+        [Required]
+        [Column("ALUMNO_DOCUMENTO")] 
+        public string AlumnoDocumento { get; set; } = default!;
+
+
         [Required]
         [Column("CARRERA_ID")] 
         public string CarreraId { get; set; } = default!;
