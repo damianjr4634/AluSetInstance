@@ -10,6 +10,19 @@
 
 <PageTitle>Inscripcion de Finales</PageTitle>
 
+<div class="row">
+    <div class="col">
+        <span >Desde</span>
+        <RadzenDatePicker @bind-Value=@dde  ShowTime="false" HourFormat="12" DateFormat="dd/MM/yyyy"/>
+        <span >Hasta</span>
+        <RadzenDatePicker @bind-Value=@hta  ShowTime="false" HourFormat="12" DateFormat="dd/MM/yyyy"/>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <RadzenButton Style="margin:8px" Click=@(async () => await LoadInfo()) Icon="done" > Buscar </RadzenButton>    
+    </div>
+</div>
 <h1>Inscripcion de Finales</h1>
 
 
@@ -111,6 +124,8 @@
 
 @code {
 
+    DateTime dde = DateTime.Now.AddDays(-30);
+    DateTime hta = DateTime.Now;
     private List<InscripcionesFinales> _data = new();
     
     enum TypeCheck {AddCheck, RemoveCheck};
@@ -141,7 +156,7 @@
         {
             using (var dbContext = await DbContextCreate())
             {    
-                _data = await dbContext.QueryAsync<InscripcionesFinales>(@"select ID, MESA, LLAMADO, ALUMNO_ID AS ALUMNOID, 
+                _data = await dbContext.QueryAsync<InscripcionesFinales>($@"select ID, MESA, LLAMADO, ALUMNO_ID AS ALUMNOID, 
                                                                                     ALUMNO_DOCUMENTO AS ALUMNODOCUMENTO,  
                                                                                     ALUMNO_NOMBRE AS ALUMNONOMBRE, 
                                                                                     CUATRIMESTRE_TURNO_COMISION AS CUATRIMESTRETURNOCOMISION, 
@@ -150,7 +165,8 @@
                                                                                     MATERIA_NOMBRE AS MATERIANOMBRE, FECHA_EXAMEN AS FECHAEXAMEN, 
                                                                                     FECHA_EMISION AS FECHAEMISON, PERMISO_ID AS PERMISOID, ADM_OK AS ADMOK, 
                                                                                     SECDOC_OK AS SECDOCOK, PLATAFORMA_OK AS PLATAFORMAOK
-                                                                            from INSCRIPCION_FINALES_WEB"
+                                                                            from INSCRIPCION_FINALES_WEB 
+                                                                            WHERE FECHA_EXAMEN BETWEEN '{dde.ToString("yyyy-MM-dd")}' AND '{hta.ToString("yyyy-MM-dd")}'"
                                                                         );              
                                 
                 
