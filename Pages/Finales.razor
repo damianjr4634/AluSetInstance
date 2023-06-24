@@ -58,39 +58,46 @@
 
                 <RadzenDataGridColumn  Title="AdmOk" TItem="InscripcionesFinales" Property="AdmOk"  
                                        TextAlign="TextAlign.Center" Width="20px"> 
-                    <Template Context="data">             
-                        @if (data.AdmOk == false)  {
-                            <div class="grid-column-data">
-                                <RadzenButton Click=@(async () => await OnClickAdm(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="grid-column-data">
-                                <RadzenButton Click=@(async () => await OnClickAdm(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                            </div>
+                    <Template Context="data">
+                        @if (data.PermisoId == null)
+                        {              
+                            @if (data.AdmOk == false)  {
+                                <div class="grid-column-data">
+                                    <RadzenButton Click=@(async () => await OnClickAdm(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="grid-column-data">
+                                    <RadzenButton Click=@(async () => await OnClickAdm(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                </div>
+                            }
                         }
                     </Template>                    
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn  Title="SecDocOk" TItem="InscripcionesFinales" Property="SecdocOk"  
                                        TextAlign="TextAlign.Center" Width="30px"> 
                     <Template Context="data">             
-                        @if (data.SecdocOk == false)  {
-                            <div class="grid-column-data">
-                                <RadzenButton Click=@(async () => await OnClickSecDoc(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                            </div>
-                        }
-                        else
+                        @if (data.PermisoId == null)
                         {
-                            <div class="grid-column-data">
-                                <RadzenButton Click=@(async () => await OnClickSecDoc(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                            </div>
+                            @if (data.SecdocOk == false)  {
+                                <div class="grid-column-data">
+                                    <RadzenButton Click=@(async () => await OnClickSecDoc(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="grid-column-data">
+                                    <RadzenButton Click=@(async () => await OnClickSecDoc(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                </div>
+                            }
                         }
                     </Template>                        
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn  Title="Plataforma" TItem="InscripcionesFinales" Property="PlataformaOk"  
                                        TextAlign="TextAlign.Center" Width="30px"> 
                     <Template Context="data">             
+                        
                         @if (data.PlataformaOk == false)  {
                             <div class="grid-column-data">
                                 <RadzenButton Click=@(async () => await OnClickPlataforma(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
@@ -102,9 +109,9 @@
                                 <RadzenButton Click=@(async () => await OnClickPlataforma(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
                             </div>
                         }
+                        
                     </Template>                       
                 </RadzenDataGridColumn>
-
             </Columns>
         </RadzenDataGrid>
 
@@ -308,6 +315,7 @@
         InscripcionesFinales _final = _data.Find( x => x.Id == Id)!;
         if (_final.AdmOk && _final.SecdocOk) 
         {
+            _final.PermisoId = 0;
 
         }
     }
