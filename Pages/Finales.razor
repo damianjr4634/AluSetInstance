@@ -205,8 +205,9 @@
                 {
                     await CheckErrorsPermiso(dbContext, Id);
                     await dbContext.ExecuteAsync(@$"update web_permexa set adm_ok=true where INDICE={Id}");              
-
+                    await GrabarPermiso(dbContext, Id);
                     _data.Find(x => x.Id == Id)!.AdmOk = true;
+                   
                 }
                 else
                 {
@@ -244,7 +245,9 @@
                 {
                     await CheckErrorsPermiso(dbContext, Id);
                     await dbContext.ExecuteAsync(@$"update web_permexa set secdoc_ok=true where INDICE={Id}");                     
-                    _data.Find(x => x.Id == Id)!.SecdocOk = true;             
+                    await GrabarPermiso(dbContext, Id);
+                    _data.Find(x => x.Id == Id)!.SecdocOk = true; 
+                                
                 }
                 else
                 {
@@ -324,6 +327,15 @@
                 throw new Exception(_errors.Ferrmsg);
             }
         }
+    }
+
+    private async Task GrabarPermiso(ApplicationDbContext dbContext, int Id)
+    {
+        await dbContext.QueryAsync($@" insert into PERMEXA ( MESA, PERM_EXA,  COD_ALU, APELLIDO, CUTUCO, CARRE, COD_MAT, FECH_EMI,
+                       NREG, USUARIO, ULTMOD)
+                        values ({:MESA}, {}, {}, {}, {}, {}, {},{},
+                                {}, {}, current_timestamp) ");
+        
     }
 
     private async Task CheckCreatePermiso(ApplicationDbContext dbContext, int Id)
