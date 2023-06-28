@@ -1,7 +1,7 @@
 version: '3.3'
 services:
   app:
-    image: alusetinstance_1.1
+    image: alusetinstance_1.2
     restart: always
     environment:
       ASPNETCORE_URLS: "http://0.0.0.0:5001"
