@@ -205,9 +205,10 @@
                 {
                     await CheckErrorsPermiso(dbContext, Id);
                     await dbContext.ExecuteAsync(@$"update web_permexa set adm_ok=true where INDICE={Id}");              
-                    await GrabarPermiso(dbContext, Id);
+                    
                     _data.Find(x => x.Id == Id)!.AdmOk = true;
-                   
+                    if (_data.Find(x => x.Id == Id)!.SecdocOk && _data.Find(x => x.Id == Id)!.AdmOk)
+                        await GrabarPermiso(dbContext, Id); 
                 }
                 else
                 {
@@ -245,9 +246,10 @@
                 {
                     await CheckErrorsPermiso(dbContext, Id);
                     await dbContext.ExecuteAsync(@$"update web_permexa set secdoc_ok=true where INDICE={Id}");                     
-                    await GrabarPermiso(dbContext, Id);
+                    
                     _data.Find(x => x.Id == Id)!.SecdocOk = true; 
-                                
+                    if (_data.Find(x => x.Id == Id)!.SecdocOk && _data.Find(x => x.Id == Id)!.AdmOk)
+                        await GrabarPermiso(dbContext, Id);           
                 }
                 else
                 {
@@ -331,10 +333,11 @@
 
     private async Task GrabarPermiso(ApplicationDbContext dbContext, int Id)
     {
-        await dbContext.QueryAsync($@" insert into PERMEXA ( MESA, PERM_EXA,  COD_ALU, APELLIDO, CUTUCO, CARRE, COD_MAT, FECH_EMI,
-                       NREG, USUARIO, ULTMOD)
-                        values ({:MESA}, {}, {}, {}, {}, {}, {},{},
-                                {}, {}, current_timestamp) ");
+        await dbContext.QueryAsync($@" insert into PERMEXA ( MESA, COD_ALU, APELLIDO, CUTUCO, CARRE, COD_MAT, FECH_EMI, NREG, USUARIO, ULTMOD)
+                                        select w.mesa, a.cod_alu, a.apellido, w.cutuco, w.carre, w.cod_mat, w.fech_emi,0,-1,current_timestamp
+                                        from web_permexa w
+                                        left outer join alumnos a on a.indice=w.alumno_id
+                                        where w.INDICE={Id.ToString()}");
         
     }
 
