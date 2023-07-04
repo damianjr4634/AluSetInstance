@@ -1,0 +1,357 @@
+﻿@page "/inscripciones"
+@inherits _BasePage;
+@inject DialogService DialogService
+@using Data;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Identity;
+@using Microsoft.EntityFrameworkCore;
+
+
+<PageTitle>Inscripcion de Materias</PageTitle>
+
+<div class="row">
+    <div class="col">
+        <span >Desde</span>
+        <RadzenDatePicker @bind-Value=@dde  ShowTime="false" HourFormat="12" DateFormat="dd/MM/yyyy"/>
+        <span >Hasta</span>
+        <RadzenDatePicker @bind-Value=@hta  ShowTime="false" HourFormat="12" DateFormat="dd/MM/yyyy"/>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <RadzenButton Style="margin:8px" Click=@(async () => await LoadInfo()) Icon="done" > Buscar </RadzenButton>    
+    </div>
+</div>
+<h1>Inscripcion de Finales</h1>
+
+
+        <RadzenDataGrid  Data="@_data" TItem="InscripcionMaterias" 
+                       GridLines="Radzen.DataGridGridLines.Both" PageSize="50" AllowPaging="true"
+                        FilterMode="FilterMode.Simple" AllowSorting="true" AllowFiltering="true" 
+                       Style="heigth:420px">
+            <Columns> 
+
+             <RadzenDataGridColumn  Title="Documento" TItem="InscripcionMaterias" Property="AlumnoDocumento"  
+                                       TextAlign="TextAlign.Start" Width="30px" Frozen="false">                    
+                </RadzenDataGridColumn>      
+                
+                <RadzenDataGridColumn  Title="Nombre Apellido" TItem="InscripcionMaterias" Property="AlumnoNombre"  
+                                       TextAlign="TextAlign.Start" Width="70px" Frozen="false">                    
+                </RadzenDataGridColumn>      
+
+                <RadzenDataGridColumn TItem="InscripcionMaterias" Title="Mesa" Property="Mesa" TextAlign="TextAlign.Start" Width="20px">                    
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn TItem="InscripcionMaterias" Title="Fecha" Property="Fecha" 
+                                      TextAlign="TextAlign.Start" Width="30px">    
+                    <Template Context="data">             
+                        @if (data.Fecha != null)  {
+                            <div class="grid-column-data">
+                                @data.Fecha.ToString("dd/MM/yyyy")
+                            </div>
+                        }
+                    </Template>                
+                </RadzenDataGridColumn>
+    
+               
+
+
+                <RadzenDataGridColumn  Title="Carrera Id" TItem="InscripcionMaterias" Property="CarreraId"  
+                                       TextAlign="TextAlign.Start" Width="25px">                    
+                </RadzenDataGridColumn>       
+
+                <RadzenDataGridColumn  Title="Carrera Descripcion" TItem="InscripcionMaterias" Property="CarreraNombre"  
+                                       TextAlign="TextAlign.Start" Width="80px">                    
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn  Title="Materia" TItem="InscripcionMaterias" Property="MateriaNombre"  
+                                       TextAlign="TextAlign.Start" Width="80px">                    
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn  Title="AdmOk" TItem="InscripcionMaterias" Property="AdmOk"  
+                                       TextAlign="TextAlign.Center" Width="20px"> 
+                    <Template Context="data">
+                        @if (data.IdCursada == null)
+                        {              
+                            @if (data.AdmOk == false)  {
+                                <div class="grid-column-data">
+                                    <RadzenButton Click=@(async () => await OnClickAdm(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="grid-column-data">
+                                    <RadzenButton Click=@(async () => await OnClickAdm(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                </div>
+                            }
+                        }
+                    </Template>                    
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn  Title="SecDocOk" TItem="InscripcionMaterias" Property="SecdocOk"  
+                                       TextAlign="TextAlign.Center" Width="30px"> 
+                    <Template Context="data">             
+                        @if (data.IdCursada == null)
+                        {
+                            @if (data.SecdocOk == false)  {
+                                <div class="grid-column-data">
+                                    <RadzenButton Click=@(async () => await OnClickSecDoc(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="grid-column-data">
+                                    <RadzenButton Click=@(async () => await OnClickSecDoc(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                </div>
+                            }
+                        }
+                    </Template>                        
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn  Title="Plataforma" TItem="InscripcionMaterias" Property="PlataformaOk"  
+                                       TextAlign="TextAlign.Center" Width="30px"> 
+                    <Template Context="data">             
+                        
+                        @if (data.PlataformaOk == false)  {
+                            <div class="grid-column-data">
+                                <RadzenButton Click=@(async () => await OnClickPlataforma(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="grid-column-data">
+                                <RadzenButton Click=@(async () => await OnClickPlataforma(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                            </div>
+                        }
+                        
+                    </Template>                       
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+
+
+@code {
+
+    DateTime dde = DateTime.Now.AddDays(-30);
+    DateTime hta = DateTime.Now;
+    private List<InscripcionMaterias> _data = new();
+    
+    enum TypeCheck {AddCheck, RemoveCheck};
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)        
+    {
+        
+        if (firstRender)
+        {    
+
+            await LoadInfo();
+            
+        }
+    }
+
+    public async Task<ApplicationDbContext> DbContextCreate()
+    {
+        var dbContext = new ApplicationDbContext();
+        dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+        await dbContext.Database.OpenConnectionAsync();
+        return dbContext;
+    }
+
+    private async Task LoadInfo()
+    {
+        string query = "";
+        try
+        {
+            using (var dbContext = await DbContextCreate())
+            {    
+                _data = await dbContext.QueryAsync<InscripcionMaterias>($@"select ID, 
+                                                                            ALUMNO_ID, 
+                                                                            ALUMNO_DOCUMENTO, 
+                                                                            ALUMNO_NOMBRE, 
+                                                                            CARRERA_ID, 
+                                                                            CARRERA_NOMBRE,
+                                                                            MATERIA_ID, 
+                                                                            MATERIA_NOMBRE, 
+                                                                            FECHA,
+                                                                            INDCURSADA, 
+                                                                            ADM_OK, 
+                                                                            SECDOC_OK, 
+                                                                            PLATAFORMA_OK
+                                                                            from INSCRIPCION_MATERIAS_WEB 
+                                                                            where fecha BETWEEN '{dde.ToString("yyyy-MM-dd")}' AND '{hta.ToString("yyyy-MM-dd")}'"
+                                                                        );              
+                                
+                
+            } 
+            
+            StateHasChanged();
+        }
+        catch (Exception err)
+        {
+            if (err.InnerException != null && err.InnerException.Message != "")
+            {
+                toastService.ShowError(err.InnerException.Message);
+            }
+            else
+            {
+                toastService.ShowError(err.Message);
+            }
+        }
+    }
+
+    private async Task OnClickAdm(int Id, TypeCheck tCheck)
+    {
+        try
+        {
+            using (var dbContext = await DbContextCreate())
+            {    
+
+                if (tCheck == TypeCheck.AddCheck)
+                {
+                    await CheckErrorsInscripcion(dbContext, Id);
+                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set adm_ok=true where INDICE={Id}");              
+                    
+                    _data.Find(x => x.Id == Id)!.AdmOk = true;
+                    if (_data.Find(x => x.Id == Id)!.SecdocOk && _data.Find(x => x.Id == Id)!.AdmOk)
+                        await GrabarInscripcion(dbContext, Id); 
+                }
+                else
+                {
+                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set adm_ok=false where INDICE={Id}");              
+                    _data.Find(x => x.Id == Id)!.AdmOk = false;
+                }                
+                await CheckCreateInscripcion(dbContext, Id);  
+            } 
+            
+            //StateHasChanged();
+        }
+        catch (Exception err)
+        {
+            if (err.InnerException != null && err.InnerException.Message != "")
+            {
+                await DialogService.Alert(err.InnerException.Message, "Error", new AlertOptions() { OkButtonText = "ok" });
+                
+            }
+            else
+            {
+                await DialogService.Alert(err.Message, "Error", new AlertOptions() { OkButtonText = "ok" });
+                
+            }
+        }
+    }
+
+    private async Task OnClickSecDoc(int Id, TypeCheck tCheck)
+    {
+        try
+        {
+            using (var dbContext = await DbContextCreate())
+            {    
+
+                if (tCheck == TypeCheck.AddCheck)
+                {
+                    await CheckErrorsInscripcion(dbContext, Id);
+                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set secdoc_ok=true where INDICE={Id}");                     
+                    
+                    _data.Find(x => x.Id == Id)!.SecdocOk = true; 
+                    if (_data.Find(x => x.Id == Id)!.SecdocOk && _data.Find(x => x.Id == Id)!.AdmOk)
+                        await GrabarInscripcion(dbContext, Id);           
+                }
+                else
+                {
+                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set secdoc_ok=false where INDICE={Id}");              
+                    _data.Find(x => x.Id == Id)!.SecdocOk = false;
+                }
+                await CheckCreateInscripcion(dbContext, Id);
+            } 
+             
+            //StateHasChanged();
+        }
+        catch (Exception err)
+        {
+            if (err.InnerException != null && err.InnerException.Message != "")
+            {
+                await DialogService.Alert(err.InnerException.Message, "Error", new AlertOptions() { OkButtonText = "ok" });
+                
+            }
+            else
+            {
+                await DialogService.Alert(err.Message, "Error", new AlertOptions() { OkButtonText = "ok" });
+                
+            }
+        }
+    }
+
+    private async Task OnClickPlataforma(int Id, TypeCheck tCheck)
+    {
+        try
+        {
+            using (var dbContext = await DbContextCreate())
+            {    
+
+                if (tCheck == TypeCheck.AddCheck)
+                {
+                    await CheckErrorsInscripcion(dbContext, Id);
+                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set plataforma_ok=true where INDICE={Id}");              
+                    _data.Find(x => x.Id == Id)!.PlataformaOk = true;
+                }
+                else
+                {
+                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set plataforma_ok=false where INDICE={Id}");              
+                    _data.Find(x => x.Id == Id)!.PlataformaOk = false;
+                }
+                
+                
+            } 
+            
+            //StateHasChanged();
+        }
+        catch (Exception err)
+        {
+            if (err.InnerException != null && err.InnerException.Message != "")
+            {
+                await DialogService.Alert(err.InnerException.Message, "Error", new AlertOptions() { OkButtonText = "ok" });
+                
+            }
+            else
+            {
+                await DialogService.Alert(err.Message, "Error", new AlertOptions() { OkButtonText = "ok" });
+                
+            }
+        }
+    }
+
+    private async Task CheckErrorsInscripcion(ApplicationDbContext dbContext, int Id)
+    {
+        CheckErrores? _errors = await dbContext.QuerySingleOrDefaultAsync<CheckErrores>($@"SELECT FERRCOD, FERRWEB AS FERRMSG
+                                                                                                    FROM WEB_PERMEXA W
+                                                                                                    LEFT OUTER JOIN ALUMNOS A ON A.INDICE=W.ALUMNO_ID
+                                                                                                    LEFT OUTER JOIN XXX_MATERIAS_FINALES(A.cod_alu,W.CARRE) X ON X.CODMAT=W.COD_MAT
+                                                                                                    where W.INDICE={Id}");
+        if (_errors != null)
+        {
+            if (_errors.Ferrcod != null && _errors.Ferrcod == 2) 
+            {
+                throw new Exception(_errors.Ferrmsg);
+            }
+        }
+    }
+
+    private async Task GrabarInscripcion(ApplicationDbContext dbContext, int Id)
+    {
+        /*await dbContext.QueryAsync($@" insert into PERMEXA ( MESA, COD_ALU, APELLIDO, CUTUCO, CARRE, COD_MAT, FECH_EMI, NREG, USUARIO, ULTMOD)
+                                        select w.mesa, a.cod_alu, a.apellido, w.cutuco, w.carre, w.cod_mat, w.fech_emi,0,-1,current_timestamp
+                                        from web_permexa w
+                                        left outer join alumnos a on a.indice=w.alumno_id
+                                        where w.INDICE={Id.ToString()}");*/
+        
+    }
+
+    private async Task CheckCreateInscripcion(ApplicationDbContext dbContext, int Id)
+    {
+        InscripcionMaterias _final = _data.Find( x => x.Id == Id)!;
+        if (_final.AdmOk && _final.SecdocOk) 
+        {
+            _final.IdCursada = 0;
+
+        }
+    }
+}
