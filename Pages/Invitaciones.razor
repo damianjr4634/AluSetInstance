@@ -1,0 +1,186 @@
+﻿@page "/invitaciones"
+@inherits _BasePage;
+@inject DialogService DialogService
+@using Data;
+@using Microsoft.AspNetCore.Components.Authorization;
+@using Microsoft.AspNetCore.Http;
+@using Microsoft.AspNetCore.Identity;
+@using Microsoft.EntityFrameworkCore;
+@using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
+
+<PageTitle>Invitaciones al Sistema de Alumnos</PageTitle>
+
+<div class="row">
+    <div class="col">
+        <span>Codigo Carrera</span>
+        <RadzenTextBox  @bind-Value=@carrera  />
+        <span>Cuatrimestre</span>
+        <RadzenTextBox @bind-Value=@cuatrim />
+        <span>Curso</span>
+        <RadzenTextBox @bind-Value=@curso />
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <RadzenButton Style="margin:8px" Click=@(async () => await LoadInfo()) Icon="done" > Buscar </RadzenButton>    
+    </div>
+</div>
+<h1>Invitaciones al Sistema de alumnos</h1>
+
+
+        <RadzenDataGrid  Data="@_data" TItem="Alumnos" 
+                       GridLines="Radzen.DataGridGridLines.Both" PageSize="50" AllowPaging="true"
+                        FilterMode="FilterMode.Simple" AllowSorting="true" AllowFiltering="true" 
+                       Style="heigth:420px">
+            <Columns> 
+
+                <RadzenDataGridColumn  Title="Documento" TItem="Alumnos" Property="AlumnoId"  
+                                       TextAlign="TextAlign.Start" Width="30px" Frozen="false">                    
+                </RadzenDataGridColumn>      
+                
+                <RadzenDataGridColumn  Title="Nombre Apellido" TItem="Alumnos" Property="AlumnoNombre"  
+                                       TextAlign="TextAlign.Start" Width="70px" Frozen="false">                    
+                </RadzenDataGridColumn>              
+
+
+                <RadzenDataGridColumn  Title="Carrera Id" TItem="Alumnos" Property="CarreraId"  
+                                       TextAlign="TextAlign.Start" Width="25px">                    
+                </RadzenDataGridColumn>       
+
+                <RadzenDataGridColumn  Title="Carrera Descripcion" TItem="Alumnos" Property="CarreraNombre"  
+                                       TextAlign="TextAlign.Start" Width="80px">                    
+                </RadzenDataGridColumn>
+
+                <RadzenDataGridColumn  Title="SecDocOk" TItem="Alumnos" Property="HaveUser"  
+                                       TextAlign="TextAlign.Center" Width="30px"> 
+                    <Template Context="data">             
+                        @if (!data.HaveUser)
+                        {
+                            <div class="grid-column-data">
+                                <RadzenButton Text="Enviar" Click=@(async () => await OnClickInvitacion(@data.Id)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                            </div>                           
+                        }
+                        else
+                        {
+                            <span> Tiene Usuario </span>
+                        }
+                    </Template>                        
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+
+
+@code {
+    /*[Inject]
+    public IPasswordHasher<IdentityUser> _passwordHasher {get; set;}
+*/
+
+    string carrera = String.Empty;
+    string cuatrim = String.Empty;
+    string curso = String.Empty;
+    private List<Alumnos> _data = new();
+    
+    enum TypeCheck {AddCheck, RemoveCheck};
+    
+    //private UserManager<ApplicationUser> _userManager;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)        
+    {
+        
+        if (firstRender)
+        {    
+
+            
+        }
+    }
+
+    public async Task<ApplicationDbContext> DbContextCreate()
+    {
+        var dbContext = new ApplicationDbContext();
+        dbContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+        await dbContext.Database.OpenConnectionAsync();
+        return dbContext;
+    }
+
+    private async Task LoadInfo()
+    {
+        string query = "";
+        try
+        {
+            using (var dbContext = await DbContextCreate())
+            {    
+                _data = await dbContext.QueryAsync<Alumnos>($@"select distinct a.indice as Id,
+                                                                                        a.cod_alu as ALUMNOID,
+                                                                                        TRIM(a.apellido)||', '||TRIM(a.nom_ape) AS ALUMNONOMBRE,
+                                                                                        a.mail AS ALUMNOMAIL,
+                                                                                        ca.descarre as CARRERANOMBRE,
+                                                                                        CA.CARRE AS CARRERAID,
+                                                                                        case when exists(select 1 from ""AspNetUsers"" us where us.""UserName""=lower(a.mail) ) then true else false end as HAVEUSER
+                                                                        from cursada c
+                                                                        left outer join alumnos a on a.cod_alu=c.cod_alu and a.carre=c.carre
+                                                                        LEFT OUTER join carrera ca on ca.carre=a.carre
+                                                                        where c.carre = '{carrera.ToUpper()}' and c.cua_anio='{cuatrim}'  and c.cutuco='{curso}' and coalesce(a.mail,'')<>''"
+                                                                        );              
+                                
+                
+            } 
+            
+            StateHasChanged();
+        }
+        catch (Exception err)
+        {
+            if (err.InnerException != null && err.InnerException.Message != "")
+            {
+                toastService.ShowError(err.InnerException.Message);
+            }
+            else
+            {
+                toastService.ShowError(err.Message);
+            }
+        }
+    }
+
+    private async Task OnClickInvitacion(int Id)
+    {
+        try
+        {
+
+            using (var dbContext = await DbContextCreate())
+            {   
+                var _userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(dbContext),
+                    null,
+                    new PasswordHasher<ApplicationUser>(),
+                    null,
+                    null,
+                    new UpperInvariantLookupNormalizer(),
+                    new IdentityErrorDescriber(),
+                    null,
+                    null); 
+
+                var user = new ApplicationUser { UserName = "Joe", Email = "wx@hotmail.com" };
+                var result = await _userManager.CreateAsync(user, "YourPassWord#251");
+                if (result.Succeeded)
+                {
+                    await DialogService.Alert("Usuario creado", "", new AlertOptions() { OkButtonText = "ok" });
+                }
+               
+            } 
+             
+            //StateHasChanged();
+        }
+        catch (Exception err)
+        {
+            if (err.InnerException != null && err.InnerException.Message != "")
+            {
+                await DialogService.Alert(err.InnerException.Message, "Error", new AlertOptions() { OkButtonText = "ok" });
+                
+            }
+            else
+            {
+                await DialogService.Alert(err.Message, "Error", new AlertOptions() { OkButtonText = "ok" });
+                
+            }
+        }
+    }
+}
