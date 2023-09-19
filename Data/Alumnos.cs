@@ -21,11 +21,17 @@ namespace AluSetInstance.Data
         public string AlumnoMail { get; set; } = default!;
 
         [Required]
+        [Column("ALUMNO_DOCUMENTO")] 
+        public string AlumnoDocumento { get; set; } = default!;
+
+        [Required]
         [Column("CARRERA_ID")] 
         public string CarreraId { get; set; } = default!;
 
         [Column("ALUMNO_NOMBRE")]         
         public string? AlumnoNombre { get; set; } = default!;
+        [Column("ALUMNO_APELLIDO")]         
+        public string? AlumnoApellido { get; set; } = default!;
 
         [Column("CARRERA_NOMBRE")]         
         public string? CarreraNombre { get; set; } = default!;

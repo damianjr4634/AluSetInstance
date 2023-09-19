@@ -1,7 +1,10 @@
 ﻿@page "/invitaciones"
 @inherits _BasePage;
 @inject DialogService DialogService
+@inject IConfiguration _configuration;
+@inject SmtpEmailSender _emailSender
 @using Data;
+@using AluSetInstance.Services;
 @using Microsoft.AspNetCore.Components.Authorization;
 @using Microsoft.AspNetCore.Http;
 @using Microsoft.AspNetCore.Identity;
@@ -36,35 +39,48 @@
             <Columns> 
 
                 <RadzenDataGridColumn  Title="Documento" TItem="Alumnos" Property="AlumnoId"  
-                                       TextAlign="TextAlign.Start" Width="30px" Frozen="false">                    
+                                       TextAlign="TextAlign.Start" Width="20px" Frozen="false">                    
                 </RadzenDataGridColumn>      
                 
-                <RadzenDataGridColumn  Title="Nombre Apellido" TItem="Alumnos" Property="AlumnoNombre"  
-                                       TextAlign="TextAlign.Start" Width="70px" Frozen="false">                    
+                <RadzenDataGridColumn  Title="Apellido" TItem="Alumnos" Property="AlumnoApellido"  
+                                       TextAlign="TextAlign.Start" Width="45px" Frozen="false">                    
+                </RadzenDataGridColumn>  
+                <RadzenDataGridColumn  Title="Nombre" TItem="Alumnos" Property="AlumnoNombre"  
+                                       TextAlign="TextAlign.Start" Width="45px" Frozen="false">                    
                 </RadzenDataGridColumn>              
 
 
-                <RadzenDataGridColumn  Title="Carrera Id" TItem="Alumnos" Property="CarreraId"  
-                                       TextAlign="TextAlign.Start" Width="25px">                    
+                <RadzenDataGridColumn  Title="Mail" TItem="Alumnos" Property="AlumnoMail"  
+                                       TextAlign="TextAlign.Start" Width="45px">                    
                 </RadzenDataGridColumn>       
 
                 <RadzenDataGridColumn  Title="Carrera Descripcion" TItem="Alumnos" Property="CarreraNombre"  
                                        TextAlign="TextAlign.Start" Width="80px">                    
                 </RadzenDataGridColumn>
 
-                <RadzenDataGridColumn  Title="SecDocOk" TItem="Alumnos" Property="HaveUser"  
-                                       TextAlign="TextAlign.Center" Width="30px"> 
+                <RadzenDataGridColumn  Title="Usuario" TItem="Alumnos" Property="HaveUser"  
+                                       TextAlign="TextAlign.Center" Width="20px"> 
                     <Template Context="data">             
                         @if (!data.HaveUser)
                         {
                             <div class="grid-column-data">
-                                <RadzenButton Text="Enviar" Click=@(async () => await OnClickInvitacion(@data.Id)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                <RadzenButton Text="Crear" Click=@(async () => await OnClickInvitacion(@data)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
                             </div>                           
                         }
                         else
                         {
                             <span> Tiene Usuario </span>
-                        }
+                        }  
+                    </Template>                        
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn  Title="Mail" TItem="Alumnos" Property="HaveUser"  
+                                       TextAlign="TextAlign.Center" Width="20px"> 
+                    <Template Context="data">             
+                        
+                        <div class="grid-column-data">
+                            <RadzenButton Text="Enviar" Click=@(async () => await OnClickEnviarMail(@data)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                        </div>                           
+                        
                     </Template>                        
                 </RadzenDataGridColumn>
             </Columns>
@@ -72,9 +88,6 @@
 
 
 @code {
-    /*[Inject]
-    public IPasswordHasher<IdentityUser> _passwordHasher {get; set;}
-*/
 
     string carrera = String.Empty;
     string cuatrim = String.Empty;
@@ -112,7 +125,9 @@
             {    
                 _data = await dbContext.QueryAsync<Alumnos>($@"select distinct a.indice as Id,
                                                                                         a.cod_alu as ALUMNOID,
-                                                                                        TRIM(a.apellido)||', '||TRIM(a.nom_ape) AS ALUMNONOMBRE,
+                                                                                        SUBSTRING(A.COD_ALU FROM 4) AS ALUMNODOCUMENTO,
+                                                                                        TRIM(a.apellido) AS ALUMNOAPELLIDO ,
+                                                                                        TRIM(a.nom_ape) AS ALUMNONOMBRE,
                                                                                         a.mail AS ALUMNOMAIL,
                                                                                         ca.descarre as CARRERANOMBRE,
                                                                                         CA.CARRE AS CARRERAID,
@@ -141,7 +156,7 @@
         }
     }
 
-    private async Task OnClickInvitacion(int Id)
+    private async Task OnClickInvitacion(Alumnos data)
     {
         try
         {
@@ -157,17 +172,51 @@
                     new IdentityErrorDescriber(),
                     null,
                     null); 
+//A41623833_20051
+                var user = new ApplicationUser { UserName = data.AlumnoMail, 
+                                                Email = data.AlumnoMail, 
+                                                AccountType = "A", 
+                                                LastName = data.AlumnoApellido, 
+                                                Name= data.AlumnoNombre, 
+                                                Document =  data.AlumnoDocumento,
+                                                EmailConfirmed = true};
 
-                var user = new ApplicationUser { UserName = "Joe", Email = "wx@hotmail.com" };
-                var result = await _userManager.CreateAsync(user, "YourPassWord#251");
+                var result = await _userManager.CreateAsync(user, $"A{data.AlumnoDocumento}_{data.Id.ToString()}");
                 if (result.Succeeded)
                 {
+                    await dbContext.QueryAsync($"update alumnos set fusuweb='S' where indice={data.Id.ToString()}");
                     await DialogService.Alert("Usuario creado", "", new AlertOptions() { OkButtonText = "ok" });
+                    _data.Find(x => x.Id == data.Id).HaveUser = true;
                 }
                
             } 
              
             //StateHasChanged();
+        }
+        catch (Exception err)
+        {
+            if (err.InnerException != null && err.InnerException.Message != "")
+            {
+                await DialogService.Alert(err.InnerException.Message, "Error", new AlertOptions() { OkButtonText = "ok" });
+                
+            }
+            else
+            {
+                await DialogService.Alert(err.Message, "Error", new AlertOptions() { OkButtonText = "ok" });
+                
+            }
+        }
+    }
+
+    private async Task OnClickEnviarMail(Alumnos data)
+    {
+        try
+        {
+            var _pass = $"A{data.AlumnoDocumento}_{data.Id.ToString()}";
+
+            await _emailSender.SendEmailAsync("rdj4634@gmail.com","Sistema Alumnos ESBA Barrio Norte", $@"bienvenido al sistema de alumnos la direccion para acceder al sitio es: https://esbaintranet.freeddns.org/
+            Su nombre de usuario es {data.AlumnoMail} y su contraseña es {_pass}");
+            
         }
         catch (Exception err)
         {

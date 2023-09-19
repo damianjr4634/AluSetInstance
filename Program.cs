@@ -5,6 +5,9 @@ using Microsoft.Extensions.Configuration;
 using AluSetInstance.Data;
 using Radzen;
 using Blazored.Toast;
+using AluSetInstance.Services;
+using System.Net;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +18,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 
 builder.Services.AddBlazoredToast();
+builder.Services.AddScoped<SmtpEmailSender>();
 builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<TooltipService>();
