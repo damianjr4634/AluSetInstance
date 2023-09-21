@@ -17,7 +17,8 @@
 <div class="row">
     <div class="col">
         <span>Codigo Carrera</span>
-        <RadzenTextBox  @bind-Value=@carrera  />
+        <RadzenDropDown AllowFiltering="true" AllowClear="false" TValue="string" style="width:500px; margin-top: 2px"
+                                        Data=@Carreras TextProperty="Nombre" ValueProperty="Id" @bind-Value=carrera />
         <span>Cuatrimestre</span>
         <RadzenTextBox @bind-Value=@cuatrim />
         <span>Curso</span>
@@ -29,8 +30,12 @@
         <RadzenButton Style="margin:8px" Click=@(async () => await LoadInfo()) Icon="done" > Buscar </RadzenButton>    
     </div>
 </div>
-<h1>Invitaciones al Sistema de alumnos</h1>
-
+<div class="row">
+    <div class="hstack">
+        <h1>Invitaciones al Sistema de alumnos</h1>
+        <RadzenButton class="ms-auto" Disabled="@(_data.Count == 0)" Click=@(async () => await InvitarTodos()) Icon="done" > Invitar a todos </RadzenButton>
+    </div>
+</div>
 
         <RadzenDataGrid  Data="@_data" TItem="Alumnos" 
                        GridLines="Radzen.DataGridGridLines.Both" PageSize="50" AllowPaging="true"
@@ -92,11 +97,41 @@
     string carrera = String.Empty;
     string cuatrim = String.Empty;
     string curso = String.Empty;
+
     private List<Alumnos> _data = new();
+    private List<Carrera> Carreras = new();
+
     
     enum TypeCheck {AddCheck, RemoveCheck};
     
     //private UserManager<ApplicationUser> _userManager;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            using (var dbContext = await DbContextCreate())
+            {    
+                Carreras = await dbContext.QueryAsync<Carrera>($@"select ca.descarre as Nombre,
+                                                                          CA.CARRE AS Id
+                                                                  from carrera ca "
+                                                                        );              
+                                
+                
+            } 
+            
+        }
+        catch (Exception err)
+        {
+            if (err.InnerException != null && err.InnerException.Message != "")
+            {
+                toastService.ShowError(err.InnerException.Message);
+            }
+            else
+            {
+                toastService.ShowError(err.Message);
+            }
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)        
     {
@@ -156,7 +191,7 @@
         }
     }
 
-    private async Task OnClickInvitacion(Alumnos data)
+    private async Task OnClickInvitacion(Alumnos data, bool showDg = true)
     {
         try
         {
@@ -185,8 +220,12 @@
                 if (result.Succeeded)
                 {
                     await dbContext.QueryAsync($"update alumnos set fusuweb='S' where indice={data.Id.ToString()}");
-                    await DialogService.Alert("Usuario creado", "", new AlertOptions() { OkButtonText = "ok" });
-                    _data.Find(x => x.Id == data.Id).HaveUser = true;
+                    if (showDg)
+                    {
+                        await DialogService.Alert("Usuario creado", "", new AlertOptions() { OkButtonText = "ok" });
+                    }
+                    _data!.Find(x => x.Id == data.Id).HaveUser = true;
+                    await OnClickEnviarMail(data, showDg);
                 }
                
             } 
@@ -208,14 +247,35 @@
         }
     }
 
-    private async Task OnClickEnviarMail(Alumnos data)
+    private async Task OnClickEnviarMail(Alumnos data,  bool showDg = true)
     {
         try
         {
             var _pass = $"A{data.AlumnoDocumento}_{data.Id.ToString()}";
 
-            await _emailSender.SendEmailAsync("rdj4634@gmail.com","Sistema Alumnos ESBA Barrio Norte", $@"bienvenido al sistema de alumnos la direccion para acceder al sitio es: https://esbaintranet.freeddns.org/
-            Su nombre de usuario es {data.AlumnoMail} y su contraseña es {_pass}");
+            await _emailSender.SendEmailAsync(data.AlumnoMail,
+            "Sistema Alumnos ESBA Barrio Norte", 
+            $@"Estimados alumnos, <br>
+                Les damos la bienvenida al portal de autogestión de ESBA BARRIO NORTE. El mismo les permitirá visualizar su situación académica, inscribirse a los finales y reinscribirse a los próximos cuatrimestres.
+                <br>
+                El sitio es:  https://esbaintranet.freeddns.org/ 
+                <br>
+                Su nombre de usuario es: {data.AlumnoMail} 
+                <br>
+                Su contraseña es: {_pass}
+                <br>
+                <br>
+                La contraseña podrá ser modifica según los parámetros establecidos desde su perfil.
+                <br>    
+                <br>
+                Saludos cordiales,
+                <br>
+                Equipo Directivo.");
+
+                if (showDg)
+                {
+                    await DialogService.Alert("Mail enviado", "", new AlertOptions() { OkButtonText = "ok" });
+                }
             
         }
         catch (Exception err)
@@ -231,5 +291,39 @@
                 
             }
         }
+    }
+
+    private async Task InvitarTodos()
+    {
+        var resp = await DialogService.Confirm("Invita a todos los usuario que visualiza?", "Invitaciones", new ConfirmOptions() { OkButtonText = "Si", CancelButtonText = "No" });
+        if (resp == true)
+        {
+            InvokeAsync(async () =>
+                {
+                        await Task.Run(async () => 
+                        { foreach(var item in _data)
+                            {
+                                if (item.HaveUser == false )
+                                {
+                                    await OnClickInvitacion(item,false);
+                                }  
+                            }
+                        });
+                        DialogService.Close();               
+            });
+            await BusyDialog("Espere ...");
+            
+        }
+    }
+
+    // Busy dialog from string
+    async Task BusyDialog(string message)
+    {
+         await DialogService.OpenAsync("", ds =>
+        @<RadzenStack AlignItems="AlignItems.Center" Gap="2rem" Class="rz-p-12">
+            <RadzenImage Path="images/wait.webp" Style="width: 200px;" />
+            <RadzenText TextStyle="TextStyle.H6">Creando usuarios y enviando correos. Espere</RadzenText>
+        </RadzenStack>, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+    
     }
 }
