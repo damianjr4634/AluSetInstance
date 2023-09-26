@@ -25,7 +25,7 @@
     </RadzenStack>
     <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
         <RadzenButton Click="@(async (args) => await SendMail())" Variant="Variant.Flat" ButtonStyle="ButtonStyle.Light" Text="Enviar" Style="width: 120px" />
-        <RadzenButton Click="@((args) => dialogService.Close())" Variant="Variant.Flat" Text="Cancelar" Style="width: 120px" />
+        <RadzenButton Click="@((args) => dialogService.Close())" Variant="Variant.Flat" Text="Cerrar" Style="width: 120px" />
     </RadzenStack>
 </RadzenStack>
 
@@ -50,7 +50,7 @@
 
     private async Task SendMail()
     {
-        BusyD ialog("Espere");
+        BusyDialog("Espere");
 
         await _emailSender.SendEmailAsync(Destino,
             Asunto, 
