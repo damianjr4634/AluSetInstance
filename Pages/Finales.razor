@@ -1,4 +1,4 @@
-﻿@page "/finales"
+﻿@page "/finales/{acceso}"
 @inherits _BasePage;
 @inject DialogService DialogService
 @using Data;
@@ -69,67 +69,74 @@
                                        TextAlign="TextAlign.Start" Width="80px">                    
                 </RadzenDataGridColumn>
 
-                <RadzenDataGridColumn  Title="AdmOk" TItem="InscripcionesFinales" Property="AdmOk"  
-                                       TextAlign="TextAlign.Center" Width="20px"> 
-                    <Template Context="data">
-                        @if (data.PermisoId == null)
-                        {              
-                            @if (data.AdmOk == false)  {
+                @if (acceso == "adm")
+                {
+                    <RadzenDataGridColumn  Title="AdmOk" TItem="InscripcionesFinales" Property="AdmOk"  
+                                        TextAlign="TextAlign.Center" Width="20px"> 
+                        <Template Context="data">
+                            @if (data.PermisoId == null)
+                            {              
+                                @if (data.AdmOk == false)  {
+                                    <div class="grid-column-data">
+                                        <RadzenButton Click=@(async () => await OnClickAdm(@data, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="grid-column-data">
+                                        <RadzenButton Click=@(async () => await OnClickAdm(@data, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    </div>
+                                }
+                            }
+                        </Template>                    
+                    </RadzenDataGridColumn>
+                }
+                @if (acceso == "sec")
+                {
+                    <RadzenDataGridColumn  Title="SecDocOk" TItem="InscripcionesFinales" Property="SecdocOk"  
+                                        TextAlign="TextAlign.Center" Width="30px"> 
+                        <Template Context="data">             
+                            @if (data.PermisoId == null)
+                            {
+                                @if (data.SecdocOk == false)  {
+                                    <div class="grid-column-data">
+                                        <RadzenButton Click=@(async () => await OnClickSecDoc(@data, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="grid-column-data">
+                                        <RadzenButton Click=@(async () => await OnClickSecDoc(@data, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    </div>
+                                }
+                            }
+                        </Template>                        
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn  Title="Plataforma" TItem="InscripcionesFinales" Property="PlataformaOk"  
+                                        TextAlign="TextAlign.Center" Width="30px"> 
+                        <Template Context="data">             
+                            
+                            @if (data.PlataformaOk == false)  {
                                 <div class="grid-column-data">
-                                    <RadzenButton Click=@(async () => await OnClickAdm(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    <RadzenButton Click=@(async () => await OnClickPlataforma(@data, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
                                 </div>
                             }
                             else
                             {
                                 <div class="grid-column-data">
-                                    <RadzenButton Click=@(async () => await OnClickAdm(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    <RadzenButton Click=@(async () => await OnClickPlataforma(@data, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
                                 </div>
                             }
-                        }
-                    </Template>                    
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn  Title="SecDocOk" TItem="InscripcionesFinales" Property="SecdocOk"  
-                                       TextAlign="TextAlign.Center" Width="30px"> 
-                    <Template Context="data">             
-                        @if (data.PermisoId == null)
-                        {
-                            @if (data.SecdocOk == false)  {
-                                <div class="grid-column-data">
-                                    <RadzenButton Click=@(async () => await OnClickSecDoc(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="grid-column-data">
-                                    <RadzenButton Click=@(async () => await OnClickSecDoc(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                                </div>
-                            }
-                        }
-                    </Template>                        
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn  Title="Plataforma" TItem="InscripcionesFinales" Property="PlataformaOk"  
-                                       TextAlign="TextAlign.Center" Width="30px"> 
-                    <Template Context="data">             
-                        
-                        @if (data.PlataformaOk == false)  {
-                            <div class="grid-column-data">
-                                <RadzenButton Click=@(async () => await OnClickPlataforma(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="grid-column-data">
-                                <RadzenButton Click=@(async () => await OnClickPlataforma(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                            </div>
-                        }
-                        
-                    </Template>                       
-                </RadzenDataGridColumn>
+                            
+                        </Template>                       
+                    </RadzenDataGridColumn>
+                }
             </Columns>
         </RadzenDataGrid>
 
 
 @code {
+    [Parameter] public string acceso { get; set; }
 
     DateTime dde = DateTime.Now.AddDays(-30);
     DateTime hta = DateTime.Now;
@@ -171,7 +178,8 @@
                                                                                     CARRERA_NOMBRE AS CARRERANOMBRE, MATERIA_ID AS  MATERIAID, 
                                                                                     MATERIA_NOMBRE AS MATERIANOMBRE, FECHA_EXAMEN AS FECHAEXAMEN, 
                                                                                     FECHA_EMISION AS FECHAEMISON, PERMISO_ID AS PERMISOID, ADM_OK AS ADMOK, 
-                                                                                    SECDOC_OK AS SECDOCOK, PLATAFORMA_OK AS PLATAFORMAOK
+                                                                                    SECDOC_OK AS SECDOCOK, PLATAFORMA_OK AS PLATAFORMAOK,
+                                                                                    ALUMNO_MAIL AS ALUMNOMAIL
                                                                             from INSCRIPCION_FINALES_WEB 
                                                                             WHERE FECHA_EXAMEN BETWEEN '{dde.ToString("yyyy-MM-dd")}' AND '{hta.ToString("yyyy-MM-dd")}'"
                                                                         );              
@@ -194,7 +202,7 @@
         }
     }
 
-    private async Task OnClickAdm(int Id, TypeCheck tCheck)
+    private async Task OnClickAdm(InscripcionesFinales data, TypeCheck tCheck)
     {
         try
         {
@@ -203,19 +211,19 @@
 
                 if (tCheck == TypeCheck.AddCheck)
                 {
-                    await CheckErrorsPermiso(dbContext, Id);
-                    await dbContext.ExecuteAsync(@$"update web_permexa set adm_ok=true where INDICE={Id}");              
+                    await CheckErrorsPermiso(dbContext, data);
+                    await dbContext.ExecuteAsync(@$"update web_permexa set adm_ok=true where INDICE={data.Id}");              
                     
-                    _data.Find(x => x.Id == Id)!.AdmOk = true;
-                    if (_data.Find(x => x.Id == Id)!.SecdocOk && _data.Find(x => x.Id == Id)!.AdmOk)
-                        await GrabarPermiso(dbContext, Id); 
+                    _data.Find(x => x.Id == data.Id)!.AdmOk = true;
+                    if (_data.Find(x => x.Id == data.Id)!.SecdocOk && _data.Find(x => x.Id == data.Id)!.AdmOk)
+                        await GrabarPermiso(dbContext, data.Id); 
                 }
                 else
                 {
-                    await dbContext.ExecuteAsync(@$"update web_permexa set adm_ok=false where INDICE={Id}");              
-                    _data.Find(x => x.Id == Id)!.AdmOk = false;
+                    await dbContext.ExecuteAsync(@$"update web_permexa set adm_ok=false where INDICE={data.Id}");              
+                    _data.Find(x => x.Id == data.Id)!.AdmOk = false;
                 }                
-                await CheckCreatePermiso(dbContext, Id);  
+                await CheckCreatePermiso(dbContext, data.Id);  
             } 
             
             //StateHasChanged();
@@ -235,7 +243,7 @@
         }
     }
 
-    private async Task OnClickSecDoc(int Id, TypeCheck tCheck)
+    private async Task OnClickSecDoc(InscripcionesFinales data, TypeCheck tCheck)
     {
         try
         {
@@ -244,19 +252,22 @@
 
                 if (tCheck == TypeCheck.AddCheck)
                 {
-                    await CheckErrorsPermiso(dbContext, Id);
-                    await dbContext.ExecuteAsync(@$"update web_permexa set secdoc_ok=true where INDICE={Id}");                     
-                    
-                    _data.Find(x => x.Id == Id)!.SecdocOk = true; 
-                    if (_data.Find(x => x.Id == Id)!.SecdocOk && _data.Find(x => x.Id == Id)!.AdmOk)
-                        await GrabarPermiso(dbContext, Id);           
+                    bool _chr = await CheckErrorsPermiso(dbContext, data);
+                    if (_chr) 
+                    {
+                        await dbContext.ExecuteAsync(@$"update web_permexa set secdoc_ok=true where INDICE={data.Id}");                     
+                        
+                        _data.Find(x => x.Id == data.Id)!.SecdocOk = true; 
+                        if (_data.Find(x => x.Id == data.Id)!.SecdocOk && _data.Find(x => x.Id == data.Id)!.AdmOk)
+                            await GrabarPermiso(dbContext, data.Id);
+                    }           
                 }
                 else
                 {
-                    await dbContext.ExecuteAsync(@$"update web_permexa set secdoc_ok=false where INDICE={Id}");              
-                    _data.Find(x => x.Id == Id)!.SecdocOk = false;
+                    await dbContext.ExecuteAsync(@$"update web_permexa set secdoc_ok=false where INDICE={data.Id}");              
+                    _data.Find(x => x.Id == data.Id)!.SecdocOk = false;
                 }
-                await CheckCreatePermiso(dbContext, Id);
+                await CheckCreatePermiso(dbContext, data.Id);
             } 
              
             //StateHasChanged();
@@ -276,7 +287,7 @@
         }
     }
 
-    private async Task OnClickPlataforma(int Id, TypeCheck tCheck)
+    private async Task OnClickPlataforma(InscripcionesFinales data, TypeCheck tCheck)
     {
         try
         {
@@ -285,14 +296,18 @@
 
                 if (tCheck == TypeCheck.AddCheck)
                 {
-                    await CheckErrorsPermiso(dbContext, Id);
-                    await dbContext.ExecuteAsync(@$"update web_permexa set plataforma_ok=true where INDICE={Id}");              
-                    _data.Find(x => x.Id == Id)!.PlataformaOk = true;
+                    
+                    bool _chr = await CheckErrorsPermiso(dbContext, data);
+                    if (_chr) 
+                    {
+                        await dbContext.ExecuteAsync(@$"update web_permexa set plataforma_ok=true where INDICE={data.Id}");              
+                        _data.Find(x => x.Id == data.Id)!.PlataformaOk = true;
+                    }
                 }
                 else
                 {
-                    await dbContext.ExecuteAsync(@$"update web_permexa set plataforma_ok=false where INDICE={Id}");              
-                    _data.Find(x => x.Id == Id)!.PlataformaOk = false;
+                    await dbContext.ExecuteAsync(@$"update web_permexa set plataforma_ok=false where INDICE={data.Id}");              
+                    _data.Find(x => x.Id == data.Id)!.PlataformaOk = false;
                 }
                 
                 
@@ -315,20 +330,62 @@
         }
     }
 
-    private async Task CheckErrorsPermiso(ApplicationDbContext dbContext, int Id)
+    private async Task<bool> CheckErrorsPermiso(ApplicationDbContext dbContext, InscripcionesFinales data)
     {
         CheckErrores? _errors = await dbContext.QuerySingleOrDefaultAsync<CheckErrores>($@"SELECT FERRCOD, FERRWEB AS FERRMSG
                                                                                                     FROM WEB_PERMEXA W
                                                                                                     LEFT OUTER JOIN ALUMNOS A ON A.INDICE=W.ALUMNO_ID
                                                                                                     LEFT OUTER JOIN XXX_MATERIAS_FINALES(A.cod_alu,W.CARRE) X ON X.CODMAT=W.COD_MAT
-                                                                                                    where W.INDICE={Id}");
+                                                                                                    where W.INDICE={data.Id}");
+        
+        bool _ret = true;
         if (_errors != null)
         {
             if (_errors.Ferrcod != null && _errors.Ferrcod == 2) 
             {
-                throw new Exception(_errors.Ferrmsg);
+                _ret = false;
+                if (acceso == "adm")
+                {
+                    throw new Exception(_errors.Ferrmsg);
+                }
+                else
+                {
+                    var resp = await DialogService.Confirm($@"Problema: {_errors.Ferrmsg}. 
+                                                              Desea enviarle mail al alumno con este problema?", "Problemas en inscripción", new ConfirmOptions() { OkButtonText = "Si", CancelButtonText = "No" });
+                    if (resp == true)
+                    {
+                        string _fecha = data.FechaExamen.ToString("dd/MM/yyyy");
+                        string _msg = 
+$@"Estimado {data.AlumnoNombre} 
+                
+Nos comunicamos para informale que hubo un inconveniente en la inscripción al final 
+de la materia <b>{data.MateriaNombre}</b> con fecha el <b>{_fecha}</b>.
+                                         
+La misma no podrá ser rendida por el siguiente problema:
+
+<span style=""color: red; font-size:12"">{_errors.Ferrmsg}</span>
+
+Ante cualquier duda o inconveniente estamos a disposición.
+
+Atte Secretaria Docente.";
+                        await DialogService.OpenAsync<SendMailDialog>($"Envio Mail ",
+                                                                        new Dictionary<string, object>() { 
+                                                                            { "Destino", data.AlumnoMail ?? string.Empty },
+                                                                            { "Copia", "" },
+                                                                            { "Asunto", "Problemas en permiso de examen" }, 
+                                                                            { "Mensaje", _msg },
+                                                                        },
+                                                                        new DialogOptions() { 
+                                                                            Width = "700px", 
+                                                                            Height = "650px", 
+                                                                            Resizable = true, 
+                                                                            Draggable = true 
+                                                                        });
+                    }
+                }
             }
         }
+        return _ret;
     }
 
     private async Task GrabarPermiso(ApplicationDbContext dbContext, int Id)

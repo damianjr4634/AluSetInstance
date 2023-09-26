@@ -70,6 +70,9 @@ namespace AluSetInstance.Data
         [Column("PLATAFORMA_OK")]         
         public bool PlataformaOk { get; set; } 
 
+        [Column("ALUMNO_MAIL")]
+        public string? AlumnoMail {get; set;}
+
     }
 }
 

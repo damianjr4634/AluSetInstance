@@ -55,6 +55,8 @@ namespace AluSetInstance.Data
         [Column("INDCURSADA")]         
         public int? IdCursada { get; set; } = default!;
 
+        [Column("ALUMNO_MAIL")]
+        public string? AlumnoMail {get; set;}
     }
 }
 

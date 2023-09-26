@@ -75,6 +75,8 @@ namespace AluSetInstance.Services
                 {
                     mailMessage.Bcc.Add(_administrativeMail);
                 }
+
+                mailMessage.ReplyToList.Add("drouco@sig2k.com");
                 mailMessage.Subject = subject;
                 mailMessage.IsBodyHtml = true;
 

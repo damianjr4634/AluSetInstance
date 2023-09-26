@@ -1,0 +1,71 @@
+
+@using AluSetInstance.Services;
+
+@inject Radzen.DialogService dialogService
+@inject DialogService DialogService
+@inject IConfiguration _configuration;
+@inject SmtpEmailSender _emailSender
+
+<RadzenStack Gap="1rem">
+   
+    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center">
+
+        <RadzenCard style="width:100%">
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Para</RadzenText>
+                <RadzenTextBox @bind-Value=@Destino  class="w-100" />
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Copia</RadzenText>
+                <RadzenTextBox @bind-Value=@Copia class="w-100" />
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Asunto</RadzenText>
+                <RadzenTextBox @bind-Value=@Asunto class="w-100" />
+        </RadzenCard>
+        <RadzenCard style="width:100%; height: 250px;">
+                <RadzenText TextStyle="TextStyle.Subtitle2" TagName="TagName.H3">Mensaje</RadzenText>
+                <RadzenTextArea @bind-Value=@Mensaje class="w-100" style="height: 190px;" />
+        </RadzenCard>
+    </RadzenStack>
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+        <RadzenButton Click="@(async (args) => await SendMail())" Variant="Variant.Flat" ButtonStyle="ButtonStyle.Light" Text="Enviar" Style="width: 120px" />
+        <RadzenButton Click="@((args) => dialogService.Close())" Variant="Variant.Flat" Text="Cancelar" Style="width: 120px" />
+    </RadzenStack>
+</RadzenStack>
+
+@code {
+    [Parameter] 
+    public string Destino { get; set; } = string.Empty;
+
+    [Parameter] 
+    public string? Copia { get; set; } = string.Empty;
+    
+    [Parameter] 
+    public string Asunto { get; set; } = string.Empty;
+    
+    [Parameter] 
+    public string Mensaje { get; set; } = string.Empty;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+    
+    }
+
+    private async Task SendMail()
+    {
+        BusyD ialog("Espere");
+
+        await _emailSender.SendEmailAsync(Destino,
+            Asunto, 
+            Mensaje.Replace(System.Environment.NewLine,"<br>"));
+        await DialogService.Alert("Mail enviado", "", new AlertOptions() { OkButtonText = "ok" });
+        dialogService.Close();
+    }
+
+    async Task BusyDialog(string message)
+    {
+         await DialogService.OpenAsync("", ds =>
+        @<RadzenStack AlignItems="AlignItems.Center" Gap="2rem" Class="rz-p-12">
+            <RadzenImage Path="images/wait.webp" Style="width: 200px;" />
+            <RadzenText TextStyle="TextStyle.H6">Enviando....</RadzenText>
+        </RadzenStack>, new DialogOptions() { ShowTitle = false, Style = "min-height:auto;min-width:auto;width:auto", CloseDialogOnEsc = false });
+    
+    }
+}

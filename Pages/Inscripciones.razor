@@ -1,4 +1,4 @@
-﻿@page "/inscripciones"
+﻿@page "/inscripciones/{acceso}"
 @inherits _BasePage;
 @inject DialogService DialogService
 @using Data;
@@ -69,68 +69,76 @@
                                        TextAlign="TextAlign.Start" Width="80px">                    
                 </RadzenDataGridColumn>
 
-                <RadzenDataGridColumn  Title="AdmOk" TItem="InscripcionMaterias" Property="AdmOk"  
-                                       TextAlign="TextAlign.Center" Width="20px"> 
-                    <Template Context="data">
-                        @if (data.IdCursada == null)
-                        {              
-                            @if (data.AdmOk == false)  {
+                @if (acceso =="adm")
+                {
+                    <RadzenDataGridColumn  Title="AdmOk" TItem="InscripcionMaterias" Property="AdmOk"  
+                                        TextAlign="TextAlign.Center" Width="20px"> 
+                        <Template Context="data">
+                            @if (data.IdCursada == null)
+                            {              
+                                @if (data.AdmOk == false)  {
+                                    <div class="grid-column-data">
+                                        <RadzenButton Click=@(async () => await OnClickAdm(@data, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="grid-column-data">
+                                        <RadzenButton Click=@(async () => await OnClickAdm(@data, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    </div>
+                                }
+                            }
+                        </Template>                    
+                    </RadzenDataGridColumn>
+                }
+                @if (acceso == "sec")
+                {
+                    <RadzenDataGridColumn  Title="SecDocOk" TItem="InscripcionMaterias" Property="SecdocOk"  
+                                        TextAlign="TextAlign.Center" Width="30px"> 
+                        <Template Context="data">             
+                            @if (data.IdCursada == null)
+                            {
+                                @if (data.SecdocOk == false)  {
+                                    <div class="grid-column-data">
+                                        <RadzenButton Click=@(async () => await OnClickSecDoc(@data, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="grid-column-data">
+                                        <RadzenButton Click=@(async () => await OnClickSecDoc(@data, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    </div>
+                                }
+                            }
+                        </Template>                        
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn  Title="Plataforma" TItem="InscripcionMaterias" Property="PlataformaOk"  
+                                        TextAlign="TextAlign.Center" Width="30px"> 
+                        <Template Context="data">             
+                            
+                            @if (data.PlataformaOk == false)  {
                                 <div class="grid-column-data">
-                                    <RadzenButton Click=@(async () => await OnClickAdm(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    <RadzenButton Click=@(async () => await OnClickPlataforma(@data, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
                                 </div>
                             }
                             else
                             {
                                 <div class="grid-column-data">
-                                    <RadzenButton Click=@(async () => await OnClickAdm(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
+                                    <RadzenButton Click=@(async () => await OnClickPlataforma(@data, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
                                 </div>
                             }
-                        }
-                    </Template>                    
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn  Title="SecDocOk" TItem="InscripcionMaterias" Property="SecdocOk"  
-                                       TextAlign="TextAlign.Center" Width="30px"> 
-                    <Template Context="data">             
-                        @if (data.IdCursada == null)
-                        {
-                            @if (data.SecdocOk == false)  {
-                                <div class="grid-column-data">
-                                    <RadzenButton Click=@(async () => await OnClickSecDoc(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                                </div>
-                            }
-                            else
-                            {
-                                <div class="grid-column-data">
-                                    <RadzenButton Click=@(async () => await OnClickSecDoc(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                                </div>
-                            }
-                        }
-                    </Template>                        
-                </RadzenDataGridColumn>
-                <RadzenDataGridColumn  Title="Plataforma" TItem="InscripcionMaterias" Property="PlataformaOk"  
-                                       TextAlign="TextAlign.Center" Width="30px"> 
-                    <Template Context="data">             
-                        
-                        @if (data.PlataformaOk == false)  {
-                            <div class="grid-column-data">
-                                <RadzenButton Click=@(async () => await OnClickPlataforma(@data.Id, TypeCheck.AddCheck)) Icon="done" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="grid-column-data">
-                                <RadzenButton Click=@(async () => await OnClickPlataforma(@data.Id, TypeCheck.RemoveCheck)) Icon="highlight_off" ButtonStyle="ButtonStyle.Success" Size="ButtonSize.Medium" class="rz-border-radius-10 rz-shadow-8"/>    
-                            </div>
-                        }
-                        
-                    </Template>                       
-                </RadzenDataGridColumn>
+                            
+                        </Template>                       
+                    </RadzenDataGridColumn>
+                }
             </Columns>
         </RadzenDataGrid>
 
 
 @code {
 
+    [Parameter] public string acceso { get; set; }
+    
     DateTime dde = DateTime.Now.AddDays(-30);
     DateTime hta = DateTime.Now;
     private List<InscripcionMaterias> _data = new();
@@ -175,8 +183,9 @@
                                                                             INDCURSADA, 
                                                                             ADM_OK, 
                                                                             SECDOC_OK, 
-                                                                            PLATAFORMA_OK
-                                                                            from INSCRIPCION_MATERIAS_WEB 
+                                                                            PLATAFORMA_OK,
+                                                                            ALUMNO_MAIL
+                                                                            from INSCRIPCION_MATERIAS_WEB
                                                                             where fecha BETWEEN '{dde.ToString("yyyy-MM-dd")}' AND '{hta.ToString("yyyy-MM-dd")}'"
                                                                         );              
                                 
@@ -198,7 +207,7 @@
         }
     }
 
-    private async Task OnClickAdm(int Id, TypeCheck tCheck)
+    private async Task OnClickAdm(InscripcionMaterias data, TypeCheck tCheck)
     {
         try
         {
@@ -207,19 +216,19 @@
 
                 if (tCheck == TypeCheck.AddCheck)
                 {
-                    await CheckErrorsInscripcion(dbContext, Id);
-                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set adm_ok=true where INDICE={Id}");              
+                    await CheckErrorsInscripcion(dbContext, data);
+                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set adm_ok=true where INDICE={data.Id}");              
                     
-                    _data.Find(x => x.Id == Id)!.AdmOk = true;
-                    if (_data.Find(x => x.Id == Id)!.SecdocOk && _data.Find(x => x.Id == Id)!.AdmOk)
-                        await GrabarInscripcion(dbContext, Id); 
+                    _data.Find(x => x.Id == data.Id)!.AdmOk = true;
+                    if (_data.Find(x => x.Id == data.Id)!.SecdocOk && _data.Find(x => x.Id == data.Id)!.AdmOk)
+                        await GrabarInscripcion(dbContext, data.Id); 
                 }
                 else
                 {
-                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set adm_ok=false where INDICE={Id}");              
-                    _data.Find(x => x.Id == Id)!.AdmOk = false;
+                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set adm_ok=false where INDICE={data.Id}");              
+                    _data.Find(x => x.Id == data.Id)!.AdmOk = false;
                 }                
-                await CheckCreateInscripcion(dbContext, Id);  
+                await CheckCreateInscripcion(dbContext, data.Id);  
             } 
             
             //StateHasChanged();
@@ -239,7 +248,7 @@
         }
     }
 
-    private async Task OnClickSecDoc(int Id, TypeCheck tCheck)
+    private async Task OnClickSecDoc(InscripcionMaterias data, TypeCheck tCheck)
     {
         try
         {
@@ -248,19 +257,22 @@
 
                 if (tCheck == TypeCheck.AddCheck)
                 {
-                    await CheckErrorsInscripcion(dbContext, Id);
-                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set secdoc_ok=true where INDICE={Id}");                     
-                    
-                    _data.Find(x => x.Id == Id)!.SecdocOk = true; 
-                    if (_data.Find(x => x.Id == Id)!.SecdocOk && _data.Find(x => x.Id == Id)!.AdmOk)
-                        await GrabarInscripcion(dbContext, Id);           
+                    bool _chr = await CheckErrorsInscripcion(dbContext, data);
+                    if (_chr) 
+                    {
+                        await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set secdoc_ok=true where INDICE={data.Id}");                     
+                        
+                        _data.Find(x => x.Id == data.Id)!.SecdocOk = true; 
+                        if (_data.Find(x => x.Id == data.Id)!.SecdocOk && _data.Find(x => x.Id == data.Id)!.AdmOk)
+                            await GrabarInscripcion(dbContext, data.Id);
+                    }           
                 }
                 else
                 {
-                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set secdoc_ok=false where INDICE={Id}");              
-                    _data.Find(x => x.Id == Id)!.SecdocOk = false;
+                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set secdoc_ok=false where INDICE={data.Id}");              
+                    _data.Find(x => x.Id == data.Id)!.SecdocOk = false;
                 }
-                await CheckCreateInscripcion(dbContext, Id);
+                await CheckCreateInscripcion(dbContext, data.Id);
             } 
              
             //StateHasChanged();
@@ -280,7 +292,7 @@
         }
     }
 
-    private async Task OnClickPlataforma(int Id, TypeCheck tCheck)
+    private async Task OnClickPlataforma(InscripcionMaterias data, TypeCheck tCheck)
     {
         try
         {
@@ -289,14 +301,18 @@
 
                 if (tCheck == TypeCheck.AddCheck)
                 {
-                    await CheckErrorsInscripcion(dbContext, Id);
-                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set plataforma_ok=true where INDICE={Id}");              
-                    _data.Find(x => x.Id == Id)!.PlataformaOk = true;
+                    
+                    bool _chr = await CheckErrorsInscripcion(dbContext, data);
+                    if (_chr) 
+                    {
+                        await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set plataforma_ok=true where INDICE={data.Id}");              
+                        _data.Find(x => x.Id == data.Id)!.PlataformaOk = true;
+                    }
                 }
                 else
                 {
-                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set plataforma_ok=false where INDICE={Id}");              
-                    _data.Find(x => x.Id == Id)!.PlataformaOk = false;
+                    await dbContext.ExecuteAsync(@$"update WEB_INSCRIPCIONES set plataforma_ok=false where INDICE={data.Id}");              
+                    _data.Find(x => x.Id == data.Id)!.PlataformaOk = false;
                 }
                 
                 
@@ -319,20 +335,63 @@
         }
     }
 
-    private async Task CheckErrorsInscripcion(ApplicationDbContext dbContext, int Id)
+    private async Task<bool> CheckErrorsInscripcion(ApplicationDbContext dbContext, InscripcionMaterias data)
     {
         CheckErrores? _errors = await dbContext.QuerySingleOrDefaultAsync<CheckErrores>($@"SELECT FERRCOD, FERRWEB AS FERRMSG
                                                                                                     FROM WEB_PERMEXA W
                                                                                                     LEFT OUTER JOIN ALUMNOS A ON A.INDICE=W.ALUMNO_ID
                                                                                                     LEFT OUTER JOIN XXX_MATERIAS_FINALES(A.cod_alu,W.CARRE) X ON X.CODMAT=W.COD_MAT
-                                                                                                    where W.INDICE={Id}");
+                                                                                                    where W.INDICE={data.Id}");
+        bool _ret = true;
+
         if (_errors != null)
         {
             if (_errors.Ferrcod != null && _errors.Ferrcod == 2) 
             {
-                throw new Exception(_errors.Ferrmsg);
+                _ret = false;
+                if (acceso == "adm")
+                {
+                    throw new Exception(_errors.Ferrmsg);
+                }
+                else
+                {
+                    var resp = await DialogService.Confirm($"{_errors.Ferrmsg}. Desea enviarle mail al alumno con este problema?", "Problemas en inscripcion", new ConfirmOptions() { OkButtonText = "Si", CancelButtonText = "No" });
+                    if (resp == true)
+                    {
+                        
+                        string _msg = 
+$@"Estimado {data.AlumnoNombre} 
+
+Nos comunicamos para informale que hubo un inconveniente en la inscripción a 
+la materia {data.MateriaNombre}.
+
+La misma no podra ser cursada por el siguiente problema:
+<span style=""color: red; font-size:12"">{_errors.Ferrmsg}</span>
+
+Ante cualquier duda o inconveniente estamos a disposición.
+
+Atte Secretaria Docente.
+";
+                        await DialogService.OpenAsync<SendMailDialog>($"Envio Mail ",
+                                                                        new Dictionary<string, object>() { 
+                                                                            { "Destino", data.AlumnoMail ?? string.Empty },
+                                                                            { "Copia", "fdg@esbabarrionorte.edu.ar,secretaria@esbabarrionorte.edu.ar" },
+                                                                            { "Asunto", "Problemas en permiso de examen" }, 
+                                                                            { "Mensaje", _msg },
+                                                                        },
+                                                                        new DialogOptions() { 
+                                                                            Width = "700px", 
+                                                                            Height = "650px", 
+                                                                            Resizable = true, 
+                                                                            Draggable = true 
+                                                                        });
+
+
+                    }
+                }
             }
         }
+        return _ret;
     }
 
     private async Task GrabarInscripcion(ApplicationDbContext dbContext, int Id)
